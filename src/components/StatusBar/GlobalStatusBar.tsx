@@ -1,5 +1,5 @@
 import { useAppStore } from '../../stores/appStore'
-import { Wifi, WifiOff, CloudArrowUp, CheckCircle2, AlertCircle } from 'lucide-react'
+import { Wifi, WifiOff, CloudUpload, CheckCircle2, AlertCircle } from 'lucide-react'
 
 export function GlobalStatusBar() {
   const { syncStatus } = useAppStore()
@@ -17,7 +17,7 @@ export function GlobalStatusBar() {
 
       {syncStatus.is_syncing ? (
         <div className="flex items-center gap-1">
-          <CloudArrowUp size={14} className="text-accent animate-pulse" />
+          <CloudUpload size={14} className="text-accent animate-pulse" />
           <span>Syncing...</span>
         </div>
       ) : syncStatus.pending_uploads > 0 ? (

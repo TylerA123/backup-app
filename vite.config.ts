@@ -11,8 +11,8 @@ export default defineConfig({
   },
   envPrefix: ['VITE_', 'TAURI_'],
   build: {
-    target: process.env.TAURI_PLATFORM === 'windows' ? 'chrome105' : 'safari14',
-    minify: !process.env.TAURI_DEBUG ? 'esbuild' : false,
-    sourcemap: !!process.env.TAURI_DEBUG,
+    target: 'esnext',
+    minify: false,
+    sourcemap: false,
   },
 })
