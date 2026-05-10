@@ -1,0 +1,73 @@
+[package]
+name = "studio-backup"
+version = "0.1.0"
+description = "Studio Backup - Automatic backup for music production projects"
+authors = ["you"]
+license = ""
+repository = ""
+edition = "2021"
+rust-version = "1.77.2"
+
+[lib]
+name = "app_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.6.1" }
+
+[dependencies]
+serde_json = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+log = "0.4"
+tauri = { version = "2.11.1" }
+tauri-plugin-log = "2"
+tauri-plugin-store = "2"
+
+# Async
+tokio = { version = "1", features = ["full"] }
+
+# File watching
+notify = "7"
+
+# Hashing
+sha2 = "0.10"
+
+# Local database
+rusqlite = { version = "0.31", features = ["bundled"] }
+
+# HTTP client
+reqwest = { version = "0.12", features = ["json", "rustls-tls"] }
+
+# S3-compatible (Backblaze B2)
+aws-sdk-s3 = { version = "1", features = ["rustls"] }
+aws-config = { version = "1", features = ["rustls"] }
+
+# Async streaming
+futures = "0.3"
+tokio-stream = "0.1"
+
+# Credential storage
+keyring = "3"
+
+# Tauri plugins
+tauri-plugin-dialog = "2"
+
+# Error handling
+thiserror = "2"
+anyhow = "1"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = "0.3"
+
+# UUID generation
+uuid = { version = "1", features = ["v4"] }
+
+# Date/time
+chrono = { version = "0.4", features = ["serde"] }
+
+# Byte size formatting
+bytesize = "1"
+
+# Cross-platform directories
+dirs-next = "2"
