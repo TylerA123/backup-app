@@ -1,6 +1,3 @@
-// Backblaze B2 client wrapper
-// Uses aws-sdk-s3 with B2-compatible endpoint
-
 use aws_sdk_s3::config::{Region, Credentials};
 use aws_sdk_s3::Client;
 use aws_sdk_s3::primitives::ByteStream;
@@ -11,13 +8,16 @@ use tracing::info;
 pub struct B2Client {
     client: Client,
     bucket: String,
+    key_id: String,
+    app_key: String,
+    endpoint: String,
 }
 
 impl B2Client {
     pub fn new(key_id: &str, app_key: &str, bucket: &str, endpoint: &str) -> Self {
         let creds = Credentials::new(key_id, app_key, None, None, "b2");
         let config = aws_sdk_s3::Config::builder()
-            .region(Region::new("us-west-002"))
+            .region(Region::new("eu-central-003"))
             .endpoint_url(endpoint)
             .credentials_provider(creds)
             .force_path_style(true)
@@ -26,14 +26,17 @@ impl B2Client {
         B2Client {
             client: Client::from_conf(config),
             bucket: bucket.to_string(),
+            key_id: key_id.to_string(),
+            app_key: app_key.to_string(),
+            endpoint: endpoint.to_string(),
         }
     }
 
-    pub async fn upload_file(
-        &self,
-        key: &str,
-        file_path: &Path,
-    ) -> Result<String, String> {
+    pub fn bucket(&self) -> &str {
+        &self.bucket
+    }
+
+    pub async fn upload_file(&self, key: &str, file_path: &Path) -> Result<String, String> {
         let body = ByteStream::from_path(file_path)
             .await
             .map_err(|e| format!("Cannot read file: {}", e))?;
@@ -48,16 +51,12 @@ impl B2Client {
             .await
             .map_err(|e| format!("Upload failed: {}", e))?;
 
-        let etag = result.e_tag().unwrap_or("unknown");
+        let etag = result.e_tag().unwrap_or("unknown").trim_matches('"').to_string();
         info!("Uploaded {} (etag: {})", key, etag);
-        Ok(etag.to_string())
+        Ok(etag)
     }
 
-    pub async fn download_file(
-        &self,
-        key: &str,
-        destination: &Path,
-    ) -> Result<(), String> {
+    pub async fn download_file(&self, key: &str, destination: &Path) -> Result<(), String> {
         let result = self
             .client
             .get_object()
@@ -96,7 +95,7 @@ impl B2Client {
         {
             Ok(_) => Ok(true),
             Err(e) => {
-                if e.to_string().contains("404") {
+                if e.to_string().contains("404") || e.to_string().contains("Not Found") {
                     Ok(false)
                 } else {
                     Err(format!("Head object failed: {}", e))

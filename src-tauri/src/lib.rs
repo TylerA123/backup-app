@@ -25,10 +25,28 @@ pub fn run() {
         db::LocalDb::new(&db_path).expect("Failed to initialize database"),
     );
 
+    let config = Arc::new(api::config::AppConfig::from_env());
+    let supabase = Arc::new(api::supabase::SupabaseClient::new(
+        config.supabase_url.clone(),
+        config.supabase_anon_key.clone(),
+    ));
+    let b2 = Arc::new(api::b2::B2Client::new(
+        &config.b2_key_id,
+        &config.b2_app_key,
+        &config.b2_bucket,
+        &config.b2_endpoint,
+    ));
+
     let sync_engine = Arc::new(sync::SyncEngine::new(db.clone()));
 
     tauri::Builder::default()
-        .manage(AppState { db, sync_engine })
+        .manage(AppState {
+            db,
+            sync_engine,
+            supabase,
+            b2,
+            config,
+        })
         .setup(|app| {
             if cfg!(debug_assertions) {
                 app.handle().plugin(
@@ -42,6 +60,11 @@ pub fn run() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            commands::sign_up,
+            commands::sign_in,
+            commands::sign_out,
+            commands::get_user,
+            commands::health_check,
             commands::list_projects,
             commands::add_project,
             commands::trigger_snapshot,

@@ -1,21 +1,39 @@
 import { create } from 'zustand'
 import type { Project, SyncStatus } from '../types'
 
+interface AuthUser {
+  id: string
+  email: string | null
+}
+
 interface AppState {
+  // Auth
+  user: AuthUser | null
+  accessToken: string | null
+  isAuthenticated: boolean
+
+  // Projects
   projects: Project[]
   selectedProjectId: string | null
   syncStatus: SyncStatus
   isOnboarding: boolean
 
+  // Auth actions
+  setAuth: (user: AuthUser | null, token: string | null) => void
+  setOnboarding: (value: boolean) => void
+
+  // Project actions
   setProjects: (projects: Project[]) => void
   addProject: (project: Project) => void
   removeProject: (id: string) => void
   selectProject: (id: string | null) => void
   setSyncStatus: (status: Partial<SyncStatus>) => void
-  setOnboarding: (value: boolean) => void
 }
 
 export const useAppStore = create<AppState>((set) => ({
+  user: null,
+  accessToken: null,
+  isAuthenticated: false,
   projects: [],
   selectedProjectId: null,
   syncStatus: {
@@ -25,6 +43,11 @@ export const useAppStore = create<AppState>((set) => ({
     is_syncing: false,
   },
   isOnboarding: true,
+
+  setAuth: (user, accessToken) =>
+    set({ user, accessToken, isAuthenticated: !!user }),
+
+  setOnboarding: (value) => set({ isOnboarding: value }),
 
   setProjects: (projects) => set({ projects }),
   addProject: (project) =>
@@ -38,5 +61,4 @@ export const useAppStore = create<AppState>((set) => ({
     set((state) => ({
       syncStatus: { ...state.syncStatus, ...status },
     })),
-  setOnboarding: (value) => set({ isOnboarding: value }),
 }))

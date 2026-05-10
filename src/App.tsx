@@ -2,7 +2,7 @@ import { useAppStore } from './stores/appStore'
 import { useProjects } from './hooks/useProjects'
 import { useSyncStatus } from './hooks/useSyncStatus'
 import { AppShell } from './components/Layout/AppShell'
-import { OnboardingFlow } from './components/Onboarding/OnboardingFlow'
+import { AuthScreen } from './components/Auth/AuthScreen'
 import { VersionHistory } from './components/VersionHistory/VersionHistory'
 import { SettingsPanel } from './components/Settings/SettingsPanel'
 import { FileAudio, FolderOpen } from 'lucide-react'
@@ -46,20 +46,19 @@ function ProjectView() {
       </div>
 
       <VersionHistory snapshots={[]} onRestore={() => {}} />
-
       <SettingsPanel />
     </div>
   )
 }
 
 export default function App() {
-  const { isOnboarding, selectedProjectId } = useAppStore()
+  const { isAuthenticated, selectedProjectId } = useAppStore()
 
   useProjects()
   useSyncStatus()
 
-  if (isOnboarding) {
-    return <OnboardingFlow />
+  if (!isAuthenticated) {
+    return <AuthScreen />
   }
 
   return (
